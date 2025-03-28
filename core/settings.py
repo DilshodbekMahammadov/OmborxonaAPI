@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
+from drf_yasg.inspectors import SwaggerAutoSchema
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,11 +41,13 @@ INSTALLED_APPS = [
     'main',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
@@ -137,3 +140,24 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer"),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'core.settings.CustomSwaggerAutoSchema',
+    'SECURITY_DEFINITIONS': {
+        'Basic':{
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+class CustomSwaggerAutoSchema(SwaggerAutoSchema):
+    def get_tags(self, operation_keys=None):
+        tag_order = ['api', 'bolim', 'sotuvchi', 'mahsulot', 'sotuv', 'mijoz' ]
+        tags = super().get_tags(operation_keys)
+        sorted_tags = sorted(tags, key=lambda x: tag_order.index(x) if x in tag_order else len(tag_order))
+        return sorted_tags

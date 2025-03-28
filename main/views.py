@@ -1,7 +1,6 @@
 from rest_framework.generics import *
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializers import *
-from django.http import HttpRequest
 
 class BolimListCreateAPIView(ListCreateAPIView):
     serializer_class = BolimSerializer
